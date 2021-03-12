@@ -153,7 +153,7 @@ export default Greeting;
 
 # Consuming Contexts
 
-Suppose we have a `ThemeContext` and a `LanguageContext` that we to use in our `Greeting` component. In class components we can do so by using the **Render Props API**
+Suppose we have a `ThemeContext` and a `LanguageContext` that we want to use in our `Greeting` component. In class components we can do so by using the **Render Props API**
 
 ```js
 import { Component } from "react";
@@ -242,3 +242,107 @@ export default Greeting;
 ```
 
 <image src="./readme-imgs/4.png">
+
+# Lifecycle Methods
+
+If we want to perform side effects in React we can do so using the lifecycle methods. So, suppose we want to update the title of the document as the state changes we can make use of `componentDidMount` and `componentDidUpdate` lifecycle methods.
+
+```js
+import { Component } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+class Greeting extends Component {
+  constructor() {
+    super();
+    this.state = { name: "Mary", surname: "Poppins" };
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSurnameChange = this.handleSurnameChange.bind(this);
+  }
+
+  componentDidMount() {
+    document.title = this.state.name + " " + this.state.surname;
+  }
+
+  componentDidUpdate() {
+    document.title = this.state.name + " " + this.state.surname;
+  }
+
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
+
+  handleSurnameChange(e) {
+    this.setState({ surname: e.target.value });
+  }
+
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {(theme) => (
+          <section className={theme}>
+            <Row label="Name">
+              <input value={this.state.name} onChange={this.handleNameChange} />
+            </Row>
+            <Row label="Surname">
+              <input
+                value={this.state.surname}
+                onChange={this.handleSurnameChange}
+              />
+            </Row>
+            <LanguageContext.Consumer>
+              {(language) => <Row label="Language">{language}</Row>}
+            </LanguageContext.Consumer>
+          </section>
+        )}
+      </ThemeContext.Consumer>
+    );
+  }
+}
+
+export default Greeting;
+```
+
+<image src="./readme-imgs/5.gif">
+
+We can perform side effects in functional components using the `useEffect` hook. By default `useEffect` runs both after the initial render and after every update but we can opt out of this behavior.
+
+```js
+import { useState, useContext, useEffect } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+const Greeting = () => {
+  const [name, setName] = useState("Mary");
+  const [surname, setSurname] = useState("Poppins");
+
+  const theme = useContext(ThemeContext);
+  const language = useContext(LanguageContext);
+
+  useEffect(() => {
+    document.title = name + " " + surname;
+  });
+
+  const handleNameChange = (e) => setName(e.target.value);
+
+  const handleSurnameChange = (e) => setSurname(e.target.value);
+
+  return (
+    <section className={theme}>
+      <Row label="Name">
+        <input value={name} onChange={handleNameChange} />
+      </Row>
+      <Row label="Surname">
+        <input value={surname} onChange={handleSurnameChange} />
+      </Row>
+      <Row label="Language">{language}</Row>
+    </section>
+  );
+};
+
+export default Greeting;
+```
+
+<image src="./readme-imgs/5.gif">
