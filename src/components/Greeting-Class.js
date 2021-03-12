@@ -6,17 +6,30 @@ import { LanguageContext } from "../contexts/LanguageContext";
 class Greeting extends Component {
   constructor() {
     super();
-    this.state = { name: "Mary", surname: "Poppins" };
+    this.state = { name: "Mary", surname: "Poppins", width: window.innerWidth };
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleSurnameChange = this.handleSurnameChange.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   componentDidMount() {
     document.title = this.state.name + " " + this.state.surname;
+
+    window.addEventListener("resize", this.handleResize);
   }
 
   componentDidUpdate() {
     document.title = this.state.name + " " + this.state.surname;
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+  }
+
+  handleResize(e) {
+    this.setState({
+      width: window.innerWidth,
+    });
   }
 
   handleNameChange(e) {
@@ -44,6 +57,7 @@ class Greeting extends Component {
             <LanguageContext.Consumer>
               {(language) => <Row label="Language">{language}</Row>}
             </LanguageContext.Consumer>
+            <Row label="Width">{this.state.width}</Row>
           </section>
         )}
       </ThemeContext.Consumer>

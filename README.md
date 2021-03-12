@@ -346,3 +346,134 @@ export default Greeting;
 ```
 
 <image src="./readme-imgs/5.gif">
+
+We can also subscribe to Browser APIs using lifecycle methods. So, suppose we want to have a state that stores the window width and subscribe to a Browser API that listens for changes in the window width and then we update the state based on these changes.
+
+```js
+import { Component } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+class Greeting extends Component {
+  constructor() {
+    super();
+    this.state = { name: "Mary", surname: "Poppins", width: window.innerWidth };
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSurnameChange = this.handleSurnameChange.bind(this);
+    this.handleResize = this.handleResize.bind(this);
+  }
+
+  componentDidMount() {
+    document.title = this.state.name + " " + this.state.surname;
+
+    window.addEventListener("resize", this.handleResize);
+  }
+
+  componentDidUpdate() {
+    document.title = this.state.name + " " + this.state.surname;
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+  }
+
+  handleResize(e) {
+    this.setState({
+      width: window.innerWidth,
+    });
+  }
+
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
+
+  handleSurnameChange(e) {
+    this.setState({ surname: e.target.value });
+  }
+
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {(theme) => (
+          <section className={theme}>
+            <Row label="Name">
+              <input value={this.state.name} onChange={this.handleNameChange} />
+            </Row>
+            <Row label="Surname">
+              <input
+                value={this.state.surname}
+                onChange={this.handleSurnameChange}
+              />
+            </Row>
+            <LanguageContext.Consumer>
+              {(language) => <Row label="Language">{language}</Row>}
+            </LanguageContext.Consumer>
+            <Row label="Width">{this.state.width}</Row>
+          </section>
+        )}
+      </ThemeContext.Consumer>
+    );
+  }
+}
+
+export default Greeting;
+```
+
+<image src="./readme-imgs/6.gif">
+
+Since listening to the window width has nothing to do with setting the document title we will not put them together in the same `useEffect` hook. So, just like `useState` hook we can have multiple `useEffect` hooks.
+
+With hooks the code is separated not based on lifecycle methods but based on the logic behind the code.
+
+```js
+import { useState, useContext, useEffect } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+const Greeting = () => {
+  const [name, setName] = useState("Mary");
+  const [surname, setSurname] = useState("Poppins");
+  const [width, setWidth] = useState(window.innerWidth);
+
+  const theme = useContext(ThemeContext);
+  const language = useContext(LanguageContext);
+
+  useEffect(() => {
+    document.title = name + " " + surname;
+  });
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+
+  const handleNameChange = (e) => setName(e.target.value);
+
+  const handleSurnameChange = (e) => setSurname(e.target.value);
+
+  return (
+    <section className={theme}>
+      <Row label="Name">
+        <input value={name} onChange={handleNameChange} />
+      </Row>
+      <Row label="Surname">
+        <input value={surname} onChange={handleSurnameChange} />
+      </Row>
+      <Row label="Language">{language}</Row>
+      <Row label="Width">{width}</Row>
+    </section>
+  );
+};
+
+export default Greeting;
+```
+
+**NOTE:** Currently we constantly subscribe and unsubscribe as the state changes. We can add an empty dependency array to only subscribe and unsubcribe once. `useEffect(() => {//code}, [])`
+
+<image src="./readme-imgs/6.gif">
