@@ -150,3 +150,95 @@ export default Greeting;
 ```
 
 <image src="./readme-imgs/3.gif">
+
+# Consuming Contexts
+
+Suppose we have a `ThemeContext` and a `LanguageContext` that we to use in our `Greeting` component. In class components we can do so by using the **Render Props API**
+
+```js
+import { Component } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+class Greeting extends Component {
+  constructor() {
+    super();
+    this.state = { name: "Mary", surname: "Poppins" };
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSurnameChange = this.handleSurnameChange.bind(this);
+  }
+
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
+
+  handleSurnameChange(e) {
+    this.setState({ surname: e.target.value });
+  }
+
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {(theme) => (
+          <section className={theme}>
+            <Row label="Name">
+              <input value={this.state.name} onChange={this.handleNameChange} />
+            </Row>
+            <Row label="Surname">
+              <input
+                value={this.state.surname}
+                onChange={this.handleSurnameChange}
+              />
+            </Row>
+            <LanguageContext.Consumer>
+              {(language) => <Row label="Language">{language}</Row>}
+            </LanguageContext.Consumer>
+          </section>
+        )}
+      </ThemeContext.Consumer>
+    );
+  }
+}
+
+export default Greeting;
+```
+
+<image src="./readme-imgs/4.png">
+
+We can consume contexts in functional components using the `useContext` hook.
+
+```js
+import { useState, useContext } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+const Greeting = () => {
+  const [name, setName] = useState("Mary");
+  const [surname, setSurname] = useState("Poppins");
+
+  const theme = useContext(ThemeContext);
+  const language = useContext(LanguageContext);
+
+  const handleNameChange = (e) => setName(e.target.value);
+
+  const handleSurnameChange = (e) => setSurname(e.target.value);
+
+  return (
+    <section className={theme}>
+      <Row label="Name">
+        <input value={name} onChange={handleNameChange} />
+      </Row>
+      <Row label="Surname">
+        <input value={surname} onChange={handleSurnameChange} />
+      </Row>
+      <Row label="Language">{language}</Row>
+    </section>
+  );
+};
+
+export default Greeting;
+```
+
+<image src="./readme-imgs/4.png">
