@@ -1,25 +1,11 @@
-import logo from './logo.svg';
-import './App.css';
+import GreetingClass from "./components/Greeting-Class";
+import GreetingFunction from "./components/Greeting-Function";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => (
+  <>
+    <GreetingClass name="Mary" />
+    <GreetingFunction name="Mary" />
+  </>
+);
 
 export default App;
