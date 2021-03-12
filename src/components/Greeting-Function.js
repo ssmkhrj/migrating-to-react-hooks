@@ -4,37 +4,22 @@ import { ThemeContext } from "../contexts/ThemeContext";
 import { LanguageContext } from "../contexts/LanguageContext";
 
 const Greeting = () => {
-  const [name, setName] = useState("Mary");
-  const [surname, setSurname] = useState("Poppins");
-  const [width, setWidth] = useState(window.innerWidth);
+  const name = useFormInput("Mary");
+  const surname = useFormInput("Poppins");
+  const width = useWindowWidth();
+
+  useDocumentTitle(name.value + " " + surname.value);
 
   const theme = useContext(ThemeContext);
   const language = useContext(LanguageContext);
 
-  useEffect(() => {
-    document.title = name + " " + surname;
-  });
-
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  });
-
-  const handleNameChange = (e) => setName(e.target.value);
-
-  const handleSurnameChange = (e) => setSurname(e.target.value);
-
   return (
     <section className={theme}>
       <Row label="Name">
-        <input value={name} onChange={handleNameChange} />
+        <input {...name} />
       </Row>
       <Row label="Surname">
-        <input value={surname} onChange={handleSurnameChange} />
+        <input {...surname} />
       </Row>
       <Row label="Language">{language}</Row>
       <Row label="Width">{width}</Row>
@@ -43,3 +28,32 @@ const Greeting = () => {
 };
 
 export default Greeting;
+
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+  return width;
+};
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+    document.title = title;
+  });
+};
+
+const useFormInput = (initialValue) => {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = (e) => setValue(e.target.value);
+
+  return {
+    value,
+    onChange: handleChange,
+  };
+};

@@ -347,6 +347,8 @@ export default Greeting;
 
 <image src="./readme-imgs/5.gif">
 
+# Subscribing And Unsubscribing
+
 We can also subscribe to Browser APIs using lifecycle methods. So, suppose we want to have a state that stores the window width and subscribe to a Browser API that listens for changes in the window width and then we update the state based on these changes.
 
 ```js
@@ -477,3 +479,130 @@ export default Greeting;
 **NOTE:** Currently we constantly subscribe and unsubscribe as the state changes. We can add an empty dependency array to only subscribe and unsubcribe once. `useEffect(() => {//code}, [])`
 
 <image src="./readme-imgs/6.gif">
+
+# Custom Hooks
+
+We can extract out logic from our components that we can then reuse in multiple components.
+
+So, here we can extract out the window width logic into a separate component that we call `useWindowWidth`.
+
+**NOTE:** It is highly recommended to prepend the word `use` in the names of our custom hooks, this enables the linter to check whether the custom hook obeys the rules of hooks.
+
+```js
+import { useState, useContext, useEffect } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+const Greeting = () => {
+  const [name, setName] = useState("Mary");
+  const [surname, setSurname] = useState("Poppins");
+  const width = useWindowWidth();
+
+  const theme = useContext(ThemeContext);
+  const language = useContext(LanguageContext);
+
+  useEffect(() => {
+    document.title = name + " " + surname;
+  });
+
+  const handleNameChange = (e) => setName(e.target.value);
+
+  const handleSurnameChange = (e) => setSurname(e.target.value);
+
+  return (
+    <section className={theme}>
+      <Row label="Name">
+        <input value={name} onChange={handleNameChange} />
+      </Row>
+      <Row label="Surname">
+        <input value={surname} onChange={handleSurnameChange} />
+      </Row>
+      <Row label="Language">{language}</Row>
+      <Row label="Width">{width}</Row>
+    </section>
+  );
+};
+
+export default Greeting;
+
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+  return width;
+};
+```
+
+Finally, we can also extract out the `document.title` logic and the inputs into custom hooks.
+
+```js
+import { useState, useContext, useEffect } from "react";
+import Row from "./Row";
+import { ThemeContext } from "../contexts/ThemeContext";
+import { LanguageContext } from "../contexts/LanguageContext";
+
+const Greeting = () => {
+  const name = useFormInput("Mary");
+  const surname = useFormInput("Poppins");
+  const width = useWindowWidth();
+
+  useDocumentTitle(name.value + " " + surname.value);
+
+  const theme = useContext(ThemeContext);
+  const language = useContext(LanguageContext);
+
+  return (
+    <section className={theme}>
+      <Row label="Name">
+        <input {...name} />
+      </Row>
+      <Row label="Surname">
+        <input {...surname} />
+      </Row>
+      <Row label="Language">{language}</Row>
+      <Row label="Width">{width}</Row>
+    </section>
+  );
+};
+
+export default Greeting;
+
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+  return width;
+};
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+    document.title = title;
+  });
+};
+
+const useFormInput = (initialValue) => {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = (e) => setValue(e.target.value);
+
+  return {
+    value,
+    onChange: handleChange,
+  };
+};
+```
+
+<image src="readme-imgs/6.gif">
+
+# THANKYOU!
