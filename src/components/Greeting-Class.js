@@ -4,12 +4,17 @@ import Row from "./Row";
 class Greeting extends Component {
   constructor() {
     super();
-    this.state = { name: "Mary" };
+    this.state = { name: "Mary", surname: "Poppins" };
     this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSurnameChange = this.handleSurnameChange.bind(this);
   }
 
   handleNameChange(e) {
     this.setState({ name: e.target.value });
+  }
+
+  handleSurnameChange(e) {
+    this.setState({ surname: e.target.value });
   }
 
   render() {
@@ -17,6 +22,12 @@ class Greeting extends Component {
       <section>
         <Row label="Name">
           <input value={this.state.name} onChange={this.handleNameChange} />
+        </Row>
+        <Row label="Surname">
+          <input
+            value={this.state.surname}
+            onChange={this.handleSurnameChange}
+          />
         </Row>
       </section>
     );
